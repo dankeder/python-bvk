@@ -1,0 +1,6 @@
+*.pyc
+*.sw[opn]
+.envrc
+__pycache__
+build/
+python_bvk.egg-info/

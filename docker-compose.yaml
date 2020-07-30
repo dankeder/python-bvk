@@ -1,0 +1,12 @@
+version: '3.4'
+services:
+  app:
+    build: ./
+    # environment:
+    #   - POSTGRES_URI
+    #   - BORG_REPO
+    #   - BORG_PASSPHRASE
+    # volumes:
+    #   - ./.volumes/data:/data:Z
+    # depends_on:
+    #   - pgsql
