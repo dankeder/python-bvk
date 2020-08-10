@@ -3,4 +3,5 @@
 .envrc
 __pycache__
 build/
+dist/
 python_bvk.egg-info/
