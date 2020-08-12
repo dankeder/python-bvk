@@ -30,8 +30,7 @@ bvk = Bvk('username', 'password')
 Use `getwaterConsumption()` method to get the water consumption data. It accepts
 a `date_from` and optionally a `date_to`, both of which have to be a
 [datetime.date](https://docs.python.org/3/library/datetime.html#datetime.date)
-object. If `date_to` is not specified the method returns data from `date_from`
-to now.
+object. If `date_to` is not specified the method returns data to today.
 
 ```
 # Get water consumption data from the specified date to now
