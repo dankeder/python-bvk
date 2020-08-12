@@ -32,7 +32,7 @@ date = parser.parse('2020-08-01').date()
 data = bvk.getWaterConsumption(date, date);
 ```
 
-Keep in mind the library is using [Scrapy](scrapy.org) internally which means it is
+Keep in mind the library is using [Scrapy](https://scrapy.org) internally which means it is
 scraping the BVK customer portal to get the data. If BVK comes to think you are
 abusing the website they may block your IP address and/or account.
 
