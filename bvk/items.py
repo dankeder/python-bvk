@@ -8,7 +8,7 @@
 from datetime import datetime
 
 import scrapy
-from itemloaders.processors.TakeFirst import TakeFirst
+from itemloaders.processors import TakeFirst
 
 
 def parse_date(values):
