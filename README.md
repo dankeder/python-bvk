@@ -32,19 +32,57 @@ a `date_from` and optionally a `date_to`, both of which have to be a
 [datetime.date](https://docs.python.org/3/library/datetime.html#datetime.date)
 object. If `date_to` is not specified the method returns data to today.
 
+Examples:
+
 ```
 # Get water consumption data from the specified date to now
 date_from = parser.parse('2020-08-01').date()
-data = bvk.getWaterConsumption(date_from);
+deferred_data = bvk.getWaterConsumption(date_from);
 
 # Get water consumption data for a date interval
 date_from = parser.parse('2020-08-01').date()
 date_to = parser.parse('2020-08-11').date()
-data = bvk.getWaterConsumption(date_from, date_to);
+deferred_data = bvk.getWaterConsumption(date_from, date_to);
 
 # Get water consumption data for a specific date (just 1 day)
 date = parser.parse('2020-08-01').date()
-data = bvk.getWaterConsumption(date, date);
+deferred_data = bvk.getWaterConsumption(date, date);
+```
+
+You may call `getWaterConsumption` multiple times with different parameters. It
+returns a
+[twisted.internet.defer.Deferred](https://twistedmatrix.com/documents/current/core/howto/defer.html)
+object that can be used to retrieve the price data in the future using a
+callback you need to provide.
+
+```
+def process_consumption(consumption)
+  print(consumption)
+
+deferred_data.addCallback(process_consumption)
+```
+
+If you have multiple `Deferred`s from multiple calls to `getWaterConsumption`
+you can use `Bvk.join()` to get a `Deferred` that will be resolved after all
+crawlers are finished.
+
+The last callback should stop the reactor so it's shut down cleanly. Reactor
+should be stopped after all crawlers are done so the `join()` method comes in
+handy. Note that the reactor cannot be restarted so make sure this is the last
+thing you do:
+
+```
+from twisted.internet import reactor
+
+d = bvk.join()
+d.addBoth(lambda _: reactor.stop())
+```
+
+The last thing you need to do is run the reactor. The script will block until
+the crawling is finished and all configured callbacks executed.
+
+```
+reactor.run(installSignalHandlers=False)
 ```
 
 Keep in mind the library is using [Scrapy](https://scrapy.org) internally which means it is

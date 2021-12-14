@@ -1,6 +1,6 @@
-from twisted.internet import reactor
 from scrapy.settings import Settings
 from scrapy.crawler import CrawlerRunner
+from twisted.internet import defer
 
 from .spiders.water_consumption import WaterConsumptionSpider
 
@@ -16,6 +16,8 @@ class Bvk:
         self._settings = Settings()
         self._settings.setmodule('bvk.settings', priority='project')
 
+        self._runner = CrawlerRunner(self._settings)
+
         # Override settings if needed
         if log_enabled is not None:
             self._settings["LOG_ENABLED"] = log_enabled
@@ -28,13 +30,13 @@ class Bvk:
 
             `date_from` and `date_to` must be datetime.date-compatible objects.
         """
-        items = []
+        consumption = {}
 
         def _item_scraped(item):
-            items.append(item)
+            consumption[item["date"].isoformat()] = item["consumption"]
 
-        runner = CrawlerRunner(self._settings)
-        deferred = runner.crawl(
+        deferred_results = defer.Deferred()
+        deferred_crawl = self._runner.crawl(
             WaterConsumptionSpider,
             bvk_username=self._bvk_username,
             bvk_password=self._bvk_password,
@@ -42,7 +44,8 @@ class Bvk:
             date_to=date_to,
             cb_item_scraped=_item_scraped,
         )
-        deferred.addBoth(lambda _: reactor.stop())
-        reactor.run(installSignalHandlers=False)  # the script will block here until the crawling is finished
+        deferred_crawl.addCallback(lambda _: deferred_results.callback(consumption))
+        return deferred_results
 
-        return {item["date"].isoformat(): item["consumption"] for item in items}
+    def join(self):
+        return self._runner.join()
