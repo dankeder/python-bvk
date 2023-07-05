@@ -3,12 +3,11 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-with open("requirements.txt") as fh:
-    install_requires = [line for line in fh if line and line[0] not in "#-"]
+install_requires = ["scrapy", "python-dateutil"]
 
 setuptools.setup(
     name="python-bvk",
-    version="0.2.0",
+    version="0.2.1",
     author="Dan Keder",
     author_email="dan.keder@protonmail.com",
     description="Python library for tracking water consumption from BVK (Brnenske vodarny a kanalizace, bvk.cz)",

@@ -1,6 +1,3 @@
-requirements.txt: requirements.in
-	pip-compile --upgrade $^ --output-file $@
-
 build:
 	python3 setup.py sdist bdist_wheel
 
