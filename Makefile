@@ -2,7 +2,7 @@ build:
 	python3 setup.py sdist bdist_wheel
 
 upload: build
-	python3 -m twine upload dist/*
+	python3 -m twine upload --username __token__ dist/*
 
 clean:
 	python3 setup.py clean
