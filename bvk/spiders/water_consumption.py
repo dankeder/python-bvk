@@ -1,5 +1,5 @@
 from datetime import date
-from urllib.parse import urlencode, urljoin
+from urllib.parse import unquote, urlencode, urljoin
 
 import scrapy
 from dateutil import rrule
@@ -43,26 +43,28 @@ class WaterConsumptionSpider(scrapy.Spider):
     def handle_login(self, response):
         return scrapy.FormRequest.from_response(
             response,
-            formid="aspnetForm",
+            formid="ctl00_ctl00_lvLoginForm_LoginDialog1_PanelLogin",
             headers={"X-MicrosoftAjax": "Delta=true"},
             formdata={
-                "ctl00$lvLoginForm$LoginDialog1$edEmail": self._bvk_username,
-                "ctl00$lvLoginForm$LoginDialog1$edPassword": self._bvk_password,
-                "ctl00$lvLoginForm$LoginDialog1$btnLogin": "Login",
+                "ctl00$ctl00$lvLoginForm$LoginDialog1$edEmail": self._bvk_username,
+                "ctl00$ctl00$lvLoginForm$LoginDialog1$edPassword": self._bvk_password,
+                "ctl00$ctl00$lvLoginForm$LoginDialog1$btnLogin": "Login",
             },
             callback=self.handle_login_response,
         )
 
     def handle_login_response(self, response):
-        if "pageRedirect" in response.text:
-            main_info_url = urljoin(response.url, "/Userdata/MainInfo.aspx")
+        response_parts = response.text.split('|')
+        if response_parts[5] == "pageRedirect":
+            redirect_url = "/Userdata/MainInfo.aspx"
+            main_info_url = urljoin(response.url, redirect_url)
             return scrapy.Request(url=main_info_url, callback=self.handle_main_info_response)
         else:
             raise Exception(f"Login to BVK failed (status {response.status}): {response.text}")
 
     def handle_main_info_response(self, response):
         suezsmartsolutions_login_url = response.css(
-            "a#ctl00_ctl00_ContentPlaceHolder1_UserDataContentPlaceHolder_btnPortalEmis"
+            "a#ctl00_ctl00_ctl00_ContentPlaceHolder1Common_ContentPlaceHolder1_UserDataContentPlaceHolder_btnPortalEmis"
         ).attrib["href"]
         return scrapy.Request(url=suezsmartsolutions_login_url, callback=self.handle_suezsmartsolutions_login_response)
 
